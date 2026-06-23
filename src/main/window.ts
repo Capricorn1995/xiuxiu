@@ -19,7 +19,7 @@ export function createMainWindow(): BrowserWindow {
       webviewTag: true,
       additionalArguments: ['--enable-features=WebView'],
     },
-    icon: path.join(__dirname, '../../resources/icon.png'),
+    icon: getIconPath(),
     show: false,
     skipTaskbar: false,
     // 窗口背景色，避免加载白屏
@@ -53,8 +53,14 @@ export function createMainWindow(): BrowserWindow {
 
   // 为 webview 标签设置默认 webPreferences
   mainWindow.webContents.on('did-attach-webview', (_event, webContents) => {
-    // webview 内部的链接在 webview 内部打开，不弹外部浏览器
-    webContents.setWindowOpenHandler(({ url }) => {
+    // webview 内部点击链接（target=_blank 等）在 webview 内部导航
+    webContents.setWindowOpenHandler(({ url, disposition }) => {
+      // 所有新窗口请求都在 webview 内部打开
+      if (disposition === 'new-window' || disposition === 'foreground-tab' || disposition === 'background-tab') {
+        webContents.loadURL(url);
+        return { action: 'deny' };
+      }
+      // 默认也在 webview 内部打开
       webContents.loadURL(url);
       return { action: 'deny' };
     });
@@ -69,4 +75,21 @@ export function createMainWindow(): BrowserWindow {
   }
 
   return mainWindow;
+}
+
+/**
+ * 获取图标路径，兼容开发环境和打包环境
+ */
+function getIconPath(): string {
+  const fs = require('fs');
+  const candidates = [
+    path.join(__dirname, '../../resources/icon.png'),
+    path.join(process.resourcesPath || '', 'icon.png'),
+    path.join(process.resourcesPath || '', 'resources', 'icon.png'),
+    path.join(__dirname, '../../../resources/icon.png'),
+  ];
+  for (const p of candidates) {
+    try { if (fs.existsSync(p)) return p; } catch { /* ignore */ }
+  }
+  return path.join(__dirname, '../../resources/icon.png');
 }

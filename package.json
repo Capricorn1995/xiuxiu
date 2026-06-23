@@ -1,6 +1,6 @@
 {
   "name": "xiuxiu",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "嗅嗅 - 跨平台桌面资源嗅探器",
   "main": "dist/main/index.js",
   "scripts": {

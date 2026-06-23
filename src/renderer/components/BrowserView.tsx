@@ -136,12 +136,21 @@ const BrowserView: React.FC<BrowserViewProps> = ({
           src={currentUrl}
           allowpopups={true}
           disablewebsecurity={true}
-          webpreferences="allowRunningInsecureContent=yes,contextIsolation=no"
+          webpreferences="allowRunningInsecureContent=yes,contextIsolation=no,nodeIntegration=no,nativeWindowOpen=true"
           onDomReady={handleWebViewLoad}
           onDidNavigate={handleDidNavigate}
           onDidNavigateInPage={handleDidNavigate}
           onDidStartLoading={handleDidStartLoading}
           onDidStopLoading={handleDidStopLoading}
+          onNewWindow={(e: any) => {
+            // webview 内点击链接弹出新窗口时，在 webview 内部导航
+            if (e?.url) {
+              e.preventDefault?.();
+              if (webviewRef.current) {
+                webviewRef.current.src = e.url;
+              }
+            }
+          }}
         />
       </div>
     </div>
