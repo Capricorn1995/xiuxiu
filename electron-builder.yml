@@ -1,0 +1,64 @@
+appId: com.xiuxiu.app
+productName: 嗅嗅
+copyright: Copyright © 2024
+
+directories:
+  output: release
+  buildResources: resources
+
+# 仅打包 Windows 平台所需文件
+files:
+  - dist/**/*
+  - package.json
+  - node_modules/**/*
+  - "!node_modules/**/{CHANGELOG.md,README.md,readme.md,*.d.ts,*.map,*.ts}"
+  - "!node_modules/**/{test,tests,__tests__,docs,doc,examples,example}/**"
+  - "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}"
+  - "!{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}"
+
+# 将 ffmpeg 二进制作为额外资源打包到 resources 目录
+extraResources:
+  - from: node_modules/ffmpeg-static/
+    to: ffmpeg/
+    filter:
+      - ffmpeg.exe
+      - ffmpeg
+  - resources/icon.png
+
+# Windows 平台配置
+win:
+  target:
+    - nsis
+  icon: resources/icon.ico
+  # 不进行代码签名（投资人内测版）
+  signingHashAlgorithms:
+    - sha256
+
+# NSIS 安装包配置
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 嗅嗅
+  installerIcon: resources/icon.ico
+  uninstallerIcon: resources/icon.ico
+  installerHeaderIcon: resources/icon.ico
+  artifactName: 嗅嗅-Setup-${version}.${ext}
+  deleteAppDataOnUninstall: false
+  displayLanguageSelector: false
+  language: 2052 # 简体中文
+  include: resources/nsis-zh.nsh
+
+# Portable 免安装版配置
+portable:
+  artifactName: 嗅嗅-${version}-portable.${ext}
+
+# 发布配置：GitHub Releases
+publish:
+  provider: github
+  owner: xiuxiu
+  repo: xiuxiu
+  releaseType: release
